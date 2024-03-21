@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Connections {
+  id           Int       @id @default(autoincrement())
+  user1        Int
+  user2        Int
+  messages     Message[]
+  @@unique([user1, user2])
+}
+
+model Message {
+  id            Int          @id @default(autoincrement())
+  from_user     Int
+  to_user       Int
+  text          String       @db.VarChar(255)
+  createdAt     DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime     @default(now()) @db.Timestamptz(6)
+  connection    Connections  @relation(fields: [connectionId], references: [id])
+  connectionId  Int          
+}
+
+
+model Users {
+  id                Int                @default(autoincrement())
+  first_name        String             @db.VarChar(255)
+  last_name         String?            @db.VarChar(255)
+  email             String?            @db.VarChar(255)
+  phone_number      String             @id @db.VarChar(255)
+  profile_image_url String?            @db.VarChar(255)
+  created_at        DateTime  @default(now())  @db.Timestamptz(6)
+  updated_at        DateTime  @default(now())  @db.Timestamptz(6)
+}
+
+model UserStatus {
+  id  Int                   @id @default(autoincrement())
+  status enum_users_status  @default(OFFLINE)
+  last_seen DateTime        @updatedAt
+}
+
+enum enum_users_status {
+  ONLINE
+  OFFLINE
+}
